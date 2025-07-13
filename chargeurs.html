@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Chauffeurs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Ajouter un chauffeur</h2>
+  <form id="formChargeur">
+    <input type="text" id="nom" placeholder="Nom chauffeur" required />
+    <input type="tel" id="telephone" placeholder="Téléphone" required />
+    <input type="text" id="vehicule" placeholder="Type de véhicule" required />
+    <input type="text" id="immatriculation" placeholder="Immatriculation" required />
+    <input type="text" id="capacite" placeholder="Capacité" required />
+    <select id="disponible">
+      <option value="true">Disponible</option>
+      <option value="false">Indisponible</option>
+    </select>
+    <button type="submit">Ajouter</button>
+  </form>
+  <h2>Liste des chauffeurs</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Téléphone</th><th>Véhicule</th><th>Immatriculation</th><th>Capacité</th><th>Statut</th></tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <script>
+    const form = document.getElementById('formChargeur');
+    const tableBody = document.getElementById('tableBody');
+    async function fetchChargeurs() {
+      const res = await fetch('http://localhost:5000/api/chargeurs');
+      const data = await res.json();
+      tableBody.innerHTML = '';
+      data.forEach(c => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${c.nom}</td>
+          <td>${c.telephone}</td>
+          <td>${c.vehicule}</td>
+          <td>${c.immatriculation}</td>
+          <td>${c.capacite}</td>
+          <td>${c.disponible ? '✅ Disponible' : '❌ Indisponible'}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const chargeur = {
+        nom: form.nom.value.trim(),
+        telephone: form.telephone.value.trim(),
+        vehicule: form.vehicule.value.trim(),
+        immatriculation: form.immatriculation.value.trim(),
+        capacite: form.capacite.value.trim(),
+        disponible: form.disponible.value === 'true'
+      };
+      await fetch('http://localhost:5000/api/chargeurs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(chargeur)
+      });
+      form.reset();
+      fetchChargeurs();
+    });
+    fetchChargeurs();
+  </script>
+</body>
+</html>
