@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Produits Tropicaux</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Ajouter un produit</h2>
+  <form id="formProduit">
+    <input type="text" id="nom" placeholder="Nom du produit" required />
+    <input type="text" id="categorie" placeholder="Catégorie" required />
+    <input type="number" id="prix_achat" placeholder="Prix d'achat" required />
+    <input type="number" id="prix_vente" placeholder="Prix de vente" required />
+    <select id="unite">
+      <option value="kg">kg</option>
+      <option value="tonne">tonne</option>
+      <option value="sac">sac</option>
+    </select>
+    <button type="submit">Ajouter</button>
+  </form>
+  <h2>Liste des produits</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Catégorie</th><th>Prix Achat</th><th>Prix Vente</th><th>Unité</th></tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <script>
+    const form = document.getElementById('formProduit');
+    const tableBody = document.getElementById('tableBody');
+    async function fetchProduits() {
+      const res = await fetch('http://localhost:5000/api/produits');
+      const data = await res.json();
+      tableBody.innerHTML = '';
+      data.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${p.nom}</td>
+          <td>${p.categorie}</td>
+          <td>${p.prix_achat} FCFA</td>
+          <td>${p.prix_vente} FCFA</td>
+          <td>${p.unite}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const produit = {
+        nom: form.nom.value.trim(),
+        categorie: form.categorie.value.trim(),
+        prix_achat: parseFloat(form.prix_achat.value),
+        prix_vente: parseFloat(form.prix_vente.value),
+        unite: form.unite.value
+      };
+      await fetch('http://localhost:5000/api/produits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(produit)
+      });
+      form.reset();
+      fetchProduits();
+    });
+    fetchProduits();
+  </script>
+</body>
+</html>

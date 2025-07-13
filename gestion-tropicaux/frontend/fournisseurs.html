@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Fournisseurs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Ajouter un fournisseur</h2>
+  <form id="formFournisseur">
+    <input type="text" id="nom" placeholder="Nom fournisseur" required />
+    <input type="text" id="adresse" placeholder="Adresse" required />
+    <input type="tel" id="telephone" placeholder="Téléphone" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <button type="submit">Ajouter</button>
+  </form>
+  <h2>Liste des fournisseurs</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Adresse</th><th>Téléphone</th><th>Email</th></tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <script>
+    const form = document.getElementById('formFournisseur');
+    const tableBody = document.getElementById('tableBody');
+    async function fetchFournisseurs() {
+      const res = await fetch('http://localhost:5000/api/fournisseurs');
+      const data = await res.json();
+      tableBody.innerHTML = '';
+      data.forEach(f => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${f.nom}</td>
+          <td>${f.adresse}</td>
+          <td>${f.telephone}</td>
+          <td>${f.email}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fournisseur = {
+        nom: form.nom.value.trim(),
+        adresse: form.adresse.value.trim(),
+        telephone: form.telephone.value.trim(),
+        email: form.email.value.trim()
+      };
+      await fetch('http://localhost:5000/api/fournisseurs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fournisseur)
+      });
+      form.reset();
+      fetchFournisseurs();
+    });
+    fetchFournisseurs();
+  </script>
+</body>
+</html>
